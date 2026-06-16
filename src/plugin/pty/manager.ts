@@ -8,14 +8,6 @@ import { SessionLifecycleManager } from './session-lifecycle.ts'
 import type { PTYSessionInfo, ReadResult, SearchResult, SpawnOptions } from './types.ts'
 import { withSession } from './utils.ts'
 
-// Monkey-patch bun-pty to fix race condition in _startReadLoop
-// Temporary workaround until https://github.com/sursaone/bun-pty/pull/37 is merged
-if (semver.order(bunPtyVersion, '0.4.8') > 0) {
-  throw new Error(
-    `bun-pty version ${bunPtyVersion} is too new for patching; remove the workaround.`
-  )
-}
-
 const proto = Terminal.prototype as unknown as { _startReadLoop?: (...args: unknown[]) => unknown }
 
 const original = proto._startReadLoop
