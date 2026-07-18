@@ -92,4 +92,19 @@ describe('NotificationManager', () => {
     expect(text).toContain('Timed Out: yes')
     expect(text).toContain('Process reached its PTY timeout and was stopped automatically.')
   })
+
+  it('strips terminal sequences from the exit notification', async () => {
+    const promptAsync = mock(async (_payload: PromptPayload) => {})
+    const manager = new NotificationManager()
+    const buffer = new RingBuffer()
+    buffer.append('useful output\n\x1b[?9001h\x1b[?1004h\n')
+
+    manager.init({ session: { promptAsync } } as unknown as OpencodeClient)
+
+    await manager.sendExitNotification(createSession({ buffer }), 0)
+
+    const text = promptAsync.mock.calls[0]?.[0].body.parts[0]?.text ?? ''
+    expect(text).toContain('Last Line: useful output')
+    expect(text).not.toContain('\x1b')
+  })
 })

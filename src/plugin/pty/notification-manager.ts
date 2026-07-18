@@ -34,7 +34,7 @@ export class NotificationManager {
     if (lineCount > 0) {
       for (let i = lineCount - 1; i >= 0; i--) {
         const bufferLines = session.buffer.read(i, 1)
-        const line = bufferLines[0]
+        const line = Bun.stripANSI(bufferLines[0] ?? '')
         if (line !== undefined && line.trim() !== '') {
           lastLine =
             line.length > NOTIFICATION_LINE_TRUNCATE
